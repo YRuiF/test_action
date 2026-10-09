@@ -1,0 +1,39 @@
+name: iOS Build (Simulator)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-ios-simulator:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build shared iOS framework
+        run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+
+      - name: Build simulator .app (no signing)
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/ios-derived \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KmpTest-simulator-app
+          path: build/ios-derived/Build/Products/Debug-iphonesimulator/*.app
+          if-no-files-found: error
