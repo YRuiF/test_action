@@ -17,7 +17,7 @@ jobs:
           java-version: 21
 
       - name: Build shared iOS framework
-        run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+        run: sh gradlew :shared:linkDebugFrameworkIosSimulatorArm64
 
       - name: Build simulator .app (no signing)
         run: |
